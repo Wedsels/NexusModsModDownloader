@@ -12,8 +12,8 @@
 
 3.
 - Install the files
-    - Nexus Mods Mod Downloader
-    - config
+    - [ Nexus Mods Mod Downloader.py ]( https://raw.githubusercontent.com/Wedsels/NexusModsModDownloader/refs/heads/main/Nexus%20Mods%20Mod%20Downloader.py )
+    - [ config.json ]( https://raw.githubusercontent.com/Wedsels/NexusModsModDownloader/refs/heads/main/config.json )
 - Setup config
 - Start Nexus Mods Mod Downloader
 - Either paste the link to a Nexus Mods collection page, or the path a mod list text file
