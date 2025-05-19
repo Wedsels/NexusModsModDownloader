@@ -141,9 +141,7 @@ def api( id, cat = "", fileid = "" ):
         else:
             raise Exception( f"Failed to communicate with nexusmods API for mod: { id }:{ fileid }" )
 
-    return retry( request )
-
-    
+    return retry( request ) 
 
 def main():
     if path.endswith( ".txt" ):
@@ -192,7 +190,7 @@ def main():
             if os.path.exists( mods + i ):
                 os.remove( mods + i )
 
-def safeimport(package):
+def safeimport( package ):
     try:
         module = __import__( package )
     except ModuleNotFoundError:
@@ -246,19 +244,19 @@ if __name__ == "__main__":
                 hide = config[ "hide" ]
                 if not isinstance( hide, bool ):
                     clear()
-                    input( f"Invalid \"hide\" value in { configs }." )
+                    input( f"Invalid \"hide\" value in { configs }.\nPress any key to continue" )
                     continue
 
                 apikey = config[ "apikey" ]
                 if session.get( f"https://api.nexusmods.com/v1/users/validate.json", headers={ "accept": "application/json", "apikey": apikey } ).status_code != 200:
                     clear()
-                    input( f"Invalid \"apikey\" value in { configs }." )
+                    input( f"Invalid \"apikey\" value in { configs }.\nPress any key to continue" )
                     continue
 
                 firefox = config[ "firefox" ] + "/"
                 if not os.path.isdir( firefox ):
                     clear()
-                    input( f"Invalid \"firefox\" value in { configs }." )
+                    input( f"Invalid \"firefox\" value in { configs }.\nPress any key to continue" )
                     continue
 
                 break
