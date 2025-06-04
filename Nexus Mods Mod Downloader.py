@@ -54,9 +54,6 @@ def download( event, filename = None ):
             return True
         return False
 
-    global modit
-    modit += 1
-
     if filename and checkname():
         return
 
@@ -144,8 +141,11 @@ def api( id, cat = "", fileid = "" ):
     return retry( request ) 
 
 def main():
+    global modit
+
     if path.endswith( ".txt" ):
         for line in data:
+            modit += 1
             line = line.strip()
             if line.startswith( "https://" ):
                 url_download( line )
@@ -178,8 +178,10 @@ def main():
             files( optional, "update" )
     elif path.startswith( "https://" ):
         for i in data[ "externalResources" ]:
+            modit += 1
             url_download( i[ "resourceUrl" ] )
         for i in data[ "modFiles" ]:
+            modit += 1
             file = i[ "file" ]
             mod = file[ "mod" ]
             id_download( mod[ "modId" ], i[ "fileId" ], f"{ file[ "name" ] }-{ mod[ "modId" ] }-{ file[ "fileId" ] }-{ mod[ "version" ] }-{ file[ "version" ] }" )
@@ -269,11 +271,9 @@ if __name__ == "__main__":
 
         def copy( name ):
             if os.path.isfile( firefox + name ):
-                if not os.path.isfile( profile + name ):
-                    shutil.copy( firefox + name, profile + name )
+                shutil.copy( firefox + name, profile + name )
             elif os.path.isdir( firefox + name ):
-                if not os.path.isdir( profile + name ):
-                    shutil.copytree( firefox + name, profile + name )
+                shutil.copytree( firefox + name, profile + name, dirs_exist_ok=True )
             else:
                 logger.info( f"Error: Could not find { name } at given firefox profile path: { firefox }" )
 
@@ -321,19 +321,7 @@ if __name__ == "__main__":
                     data = file.readlines()
                     game = data[ 0 ].strip()
                     data = data[ 1: ]
-                    ln = 1
-                    for i in data:
-                        i = i.strip()
-                        ln += 1
-                        if i.startswith( "https://" ):
-                            continue
-                        ln += i.count( ";" )
-                        if ":" not in i:
-                            continue
-                        if ":;" in i:
-                            ln -= 1
-                            continue
-                        ln += i.count( ":" ) - 1
+                    ln = len( data )
             else:
                 clear()
                 logger.info( "Invalid: " + path )
@@ -360,7 +348,7 @@ if __name__ == "__main__":
         if failed:
             logger.info( f"Some operations failed, details at { logs }" )
             os.startfile( os.path.abspath( logs ) )
-        input( f"Finished downloading mods to: { mods }, details at { logs }" )
+        input( f"Finished downloading mods to: { mods }\nDetails at { logs }" )
     except Exception as e:
         with open( crash, "w" ) as f:
             f.write( f"Failure:\n{ str( e ) }\n\n{ traceback.format_exc() }" )
