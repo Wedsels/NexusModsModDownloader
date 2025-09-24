@@ -1,4 +1,8 @@
 ### Automatically download mods from either a collection or mod list text file.
+- Stop and restart mods mid-download with saved progress
+- Rerun script to quickly check for mods missing or needing updates
+- Downloads mod at the maximum speed for the user's account level
+- Does everything silently in the background
 
 1.
 - Download [ Python ]( https://www.python.org/downloads/ )

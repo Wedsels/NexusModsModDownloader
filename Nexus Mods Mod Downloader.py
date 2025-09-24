@@ -124,7 +124,13 @@ def id_download( id, fileid, filename = None ):
         goto( f"https://www.nexusmods.com/{ game }/mods/{ id }?tab=files&file_id={ fileid }" )
 
         with page.expect_download() as info:
-            page.click( "#slowDownloadButton" )
+            page.evaluate(
+                """
+                const modComponent = document.querySelector( 'mod-file-download' );
+                if ( modComponent )
+                    modComponent.dispatchEvent( new CustomEvent( 'slowDownload', { bubbles: true, composed: true } ) );
+                """
+            )
 
         return info
 
@@ -193,12 +199,8 @@ def main():
                 os.remove( mods + i )
 
 def safeimport( package ):
-    try:
-        module = __import__( package )
-    except ModuleNotFoundError:
-        subprocess.check_call( [ sys.executable, "-m", "pip", "install", package ] )
-        module = __import__( package )
-    return module
+    subprocess.check_call( [ sys.executable, "-m", "pip", "install", "--upgrade", package ] )
+    return __import__( package )
 
 if __name__ == "__main__":
     try:
@@ -214,18 +216,22 @@ if __name__ == "__main__":
         import traceback
         import subprocess
 
+        os.system( "mode con: cols=140 lines=3" )
+
         tqdm = safeimport( "tqdm" )
         requests = safeimport( "requests" )
         playwright = safeimport( "playwright" )
+        playwright_stealth = safeimport( "playwright_stealth" )
         subprocess.check_call( "playwright install firefox", shell=True )
+        from playwright_stealth import Stealth
         from playwright.sync_api import sync_playwright
+
+        clear()
 
         modit = 0
         failed = False
         session = requests.Session()
         processedfiles = []
-
-        os.system( "mode con: cols=140 lines=3" )
 
         if os.path.exists( logs ):
             os.remove( logs )
@@ -290,6 +296,7 @@ if __name__ == "__main__":
             downloads_path=downloads,
             viewport={ "width": 1920, "height": 1080 }
         )
+        Stealth().apply_stealth_sync( context )
         page = context.pages[ 0 ] if context.pages else context.new_page()
 
         while True:
@@ -301,7 +308,7 @@ if __name__ == "__main__":
                     if not path.endswith( "/mods" ):
                         path = path + "/mods"
 
-                    with page.expect_response( lambda r: r.request.headers.get("x-graphql-operationname") == "CollectionRevisionMods" and r.status == 200 ) as response_info:
+                    with page.expect_response( lambda r: r.request.headers.get( "x-graphql-operationname" ) == "CollectionRevisionMods" and r.status == 200 ) as response_info:
                         goto( path )
 
                     response = response_info.value
